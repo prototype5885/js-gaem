@@ -26,10 +26,10 @@ const map = [
   ];
 
 class Sprite {
-    constructor({position, velocity, rotation})
+    constructor({position, speed, rotation})
     {
         this.position = position
-        this.velocity = velocity
+        this.speed = speed
         this.rotation = rotation
         
     }
@@ -51,8 +51,8 @@ class Sprite {
     update(){
         
         this.draw()
-        this.position.x += this.velocity.x * sprint
-        this.position.y += this.velocity.y * sprint
+        this.position.x += Math.cos(this.rotation) * this.speed
+        this.position.y += Math.sin(this.rotation) * this.speed;
 
     }
 }
@@ -64,18 +64,14 @@ const player = new Sprite({
         x: 256,
         y: 256
     },
-    velocity:
-    {
-        x: 0,
-        y: 0
-    },
-    rotation:
-    {
-        r: (2 * Math.PI / 180)
-    }
+    speed: 0,
+    rotation: toRadians(0)
 })
 
 
+function toRadians(deg) {
+    return (deg * Math.PI) / 180;
+  }
 
 function drawBackground()
 {
@@ -124,7 +120,8 @@ function gameLoop()
     // drawWalls()
     drawMap()
     player.update()
-    // player.rotation = 0.001
+
+
 }
 
 
@@ -136,39 +133,45 @@ document.addEventListener("keydown", (event) =>
     switch (event.key)
     {
         case 'w':
-            player.velocity.y = -2
+            player.speed = 2
             break
         case 's':
-            player.velocity.y = 2
+            player.speed = -2
             break
         case 'a':
-            player.velocity.x = -2;
+            player.rotation -= toRadians(8)
             break
         case 'd':
-            player.velocity.x = 2
+            player.rotation += toRadians(8)
             break
     }
   });
 
   document.addEventListener("keyup", (event) => 
   {
-      switch (event.key)
-      {
-          case 'w':
-              player.velocity.y = 0
-              break
-          case 's':
-              player.velocity.y = 0
-              break
-          case 'a':
-              player.velocity.x = 0
-              break
-          case 'd':
-              player.velocity.x = 0
-              break
-      }
-    });
+    switch (event.key)
+        {
+        case 'w':
+            player.speed = 0
+            break
+        case 's':
+            player.speed = 0
+            break
+        case 'a':
+            player.rotation += toRadians(0)
+            break
+        case 'd':
+            player.rotation += toRadians(0)
+            break
+        }
+});
 
-// document.addEventListener("mousemove", function (event) {
-//     player.angle += toRadians(event.movementX);
-//   });
+canvas.addEventListener("click", () => 
+{
+    canvas.requestPointerLock();
+});
+
+document.addEventListener("mousemove", function (event) 
+{
+    player.rotation += toRadians(event.movementX) / 16;
+});
