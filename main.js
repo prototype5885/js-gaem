@@ -2,8 +2,8 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas);
 
-const width = 800
-const height = 600
+const width = 1280
+const height = 720
 
 var raycastDivider = 16
 var fov = 90
@@ -14,6 +14,9 @@ canvas.setAttribute("width", width);
 canvas.setAttribute("height", height);
 
 var sprint = 1
+
+var pdx = Math.cos(degToRad(90));
+var pdy = -Math.sin(degToRad(90));
 
 const map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -31,32 +34,28 @@ class Sprite {
         this.position = position
         this.speed = speed
         this.rotation = rotation
-        
     }
     draw()
     {
-
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = 'white'
         ctx.beginPath();
-        ctx.arc(this.position.x, this.position.y, 8, 0, 2 * Math.PI);
+        ctx.arc(this.position.x, this.position.y, 6, 0, 2 * Math.PI);
         ctx.fill()
 
+        ctx.strokeStyle = 'white'
         ctx.beginPath();
         ctx.moveTo(this.position.x, this.position.y);
-        ctx.lineTo(this.position.x, this.position.y - 20);
+        ctx.lineTo(this.position.x + Math.cos(this.rotation)*15, this.position.y + Math.sin(this.rotation)*15);
         
         ctx.stroke();
- 
     }
     update(){
         
         this.draw()
         this.position.x += Math.cos(this.rotation) * this.speed
         this.position.y += Math.sin(this.rotation) * this.speed;
-
     }
 }
-
 
 const player = new Sprite({
     position:
@@ -65,11 +64,10 @@ const player = new Sprite({
         y: 256
     },
     speed: 0,
-    rotation: toRadians(0)
+    rotation: degToRad(0)
 })
 
-
-function toRadians(deg) {
+function degToRad(deg) {
     return (deg * Math.PI) / 180;
   }
 
@@ -88,16 +86,19 @@ function drawMap()
     {
         vertical.forEach((sector, x) =>
         {
+            if(sector == 0)
+            {
+                ctx.fillStyle = "black";
+            }
             if(sector == 1) 
             {
                 ctx.fillStyle = "blue";
-                ctx.fillRect(cellSize * x, cellSize * y, cellSize, cellSize);
             }
-            else if(sector == 2) 
+            if(sector == 2) 
             {
                 ctx.fillStyle = "red";
-                ctx.fillRect(cellSize * x, cellSize * y, cellSize, cellSize);
             }
+            ctx.fillRect(cellSize * x, cellSize * y, cellSize-1, cellSize-1);
         })
     });
 }
@@ -127,7 +128,6 @@ function gameLoop()
 
 setInterval(gameLoop, 16,66666666666667);
 
-
 document.addEventListener("keydown", (event) => 
 {
     switch (event.key)
@@ -138,12 +138,12 @@ document.addEventListener("keydown", (event) =>
         case 's':
             player.speed = -2
             break
-        case 'a':
-            player.rotation -= toRadians(8)
-            break
-        case 'd':
-            player.rotation += toRadians(8)
-            break
+        // case 'a':
+        //     player.rotation -= degToRad(15)
+        //     break
+        // case 'd':
+        //     player.rotation += degToRad(15)
+        //     break
     }
   });
 
@@ -157,12 +157,12 @@ document.addEventListener("keydown", (event) =>
         case 's':
             player.speed = 0
             break
-        case 'a':
-            player.rotation += toRadians(0)
-            break
-        case 'd':
-            player.rotation += toRadians(0)
-            break
+        // case 'a':
+        //     player.rotation += toRadians(0)
+        //     break
+        // case 'd':
+        //     player.rotation += toRadians(0)
+        //     break
         }
 });
 
@@ -173,5 +173,6 @@ canvas.addEventListener("click", () =>
 
 document.addEventListener("mousemove", function (event) 
 {
-    player.rotation += toRadians(event.movementX) / 16;
+    player.rotation += degToRad(event.movementX) / 8;
+    console.log(player.rotation);
 });
